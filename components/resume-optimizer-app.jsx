@@ -9,8 +9,6 @@ const loadingSteps = [
   "正在组织优化版简历"
 ];
 
-const initialResult = null;
-
 function escapeHtml(value) {
   return value
     .replaceAll("&", "&amp;")
@@ -43,8 +41,8 @@ function printResumeAsPdf(result) {
         <style>
           body {
             margin: 32px;
-            color: #132238;
-            font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            color: #1d1d1f;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
             line-height: 1.7;
           }
           h1, h2 {
@@ -53,9 +51,9 @@ function printResumeAsPdf(result) {
           .summary {
             margin: 20px 0 28px;
             padding: 16px 18px;
-            border: 1px solid #d9e0ee;
+            border: 1px solid #d8d8dc;
             border-radius: 12px;
-            background: #f8fbff;
+            background: #f5f5f7;
           }
           ul {
             margin: 0;
@@ -64,7 +62,7 @@ function printResumeAsPdf(result) {
           pre {
             white-space: pre-wrap;
             word-break: break-word;
-            border: 1px solid #d9e0ee;
+            border: 1px solid #d8d8dc;
             border-radius: 12px;
             padding: 18px;
             background: #fff;
@@ -96,9 +94,9 @@ function printResumeAsPdf(result) {
 export default function ResumeOptimizerApp() {
   const [resumeFile, setResumeFile] = useState(null);
   const [jobDescription, setJobDescription] = useState("");
+  const [fileInputKey, setFileInputKey] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(initialResult);
-  const [meta, setMeta] = useState(null);
+  const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loadingIndex, setLoadingIndex] = useState(0);
@@ -124,7 +122,6 @@ export default function ResumeOptimizerApp() {
     setError("");
     setSuccess("");
     setResult(null);
-    setMeta(null);
     setLoadingIndex(0);
 
     if (!resumeFile) {
@@ -156,7 +153,6 @@ export default function ResumeOptimizerApp() {
       }
 
       setResult(payload.data);
-      setMeta(payload.meta || null);
       setSuccess("分析完成，已经生成优化建议和完整简历。");
 
       window.setTimeout(() => {
@@ -192,38 +188,102 @@ export default function ResumeOptimizerApp() {
 
     try {
       printResumeAsPdf(result);
-      setSuccess("已打开浏览器打印窗口，可选择“另存为 PDF”。");
+      setSuccess("已打开浏览器打印窗口，你可以选择“另存为 PDF”。");
     } catch (printError) {
       setError(printError.message || "导出失败，请稍后重试。");
     }
   }
 
+  function handleReset() {
+    setResumeFile(null);
+    setJobDescription("");
+    setFileInputKey((current) => current + 1);
+    setResult(null);
+    setError("");
+    setSuccess("");
+  }
+
   return (
     <main className="page-shell">
+      <header className="site-header">
+        <div className="brand-lockup">
+          <div className="brand-mark">Resume</div>
+          <span className="brand-accent">AI</span>
+        </div>
+        <div className="header-note">应届生岗位定向简历优化</div>
+      </header>
+
       <section className="hero">
-        <h1>AI 简历优化助手</h1>
-        <p>
-          上传 PDF 简历并粘贴目标岗位 JD，系统会给出 ATS 匹配评分、关键词缺失分析、项目改写建议，
-          并生成一版更适合投递的完整简历内容。
-        </p>
-        <div className="hero-badges">
-          <span className="hero-badge">面向应届生</span>
-          <span className="hero-badge">支持 PDF 简历</span>
-          <span className="hero-badge">无需登录即可体验</span>
-          <span className="hero-badge">可导出为 PDF</span>
+        <div className="hero-grid">
+          <div className="hero-copy">
+            <div className="hero-eyebrow">AI Resume Optimizer</div>
+            <h1>让你的第一份简历，更接近面试机会。</h1>
+            <p>
+              上传 PDF 简历并粘贴岗位描述，系统会生成更贴近目标岗位的分析结果、关键词建议和完整优化版简历，
+              帮你更快进入投递状态。
+            </p>
+            <div className="hero-actions">
+              <a className="button button-primary" href="#workspace">
+                开始优化
+              </a>
+              <span className="hero-support">支持 PDF 简历上传、智能分析与 PDF 导出。</span>
+            </div>
+          </div>
+
+          <div className="hero-preview">
+            <div className="preview-panel">
+              <div className="preview-toolbar">
+                <span className="preview-dot" />
+                <span className="preview-dot" />
+                <span className="preview-dot" />
+              </div>
+              <div className="preview-label">简历优化结果预览</div>
+              <div className="preview-score">82</div>
+              <div className="preview-caption">ATS 匹配评分</div>
+              <div className="preview-list">
+                <div className="preview-item">
+                  <span>关键词缺失</span>
+                  <strong>SQL / 数据分析 / A/B 测试</strong>
+                </div>
+                <div className="preview-item">
+                  <span>重点优化</span>
+                  <strong>项目经历重写与量化表达</strong>
+                </div>
+                <div className="preview-item">
+                  <span>输出形式</span>
+                  <strong>分析建议 + 完整优化版简历</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="feature-strip">
+          <div className="feature-item">
+            <strong>ATS 匹配评分</strong>
+            <span>快速识别当前简历与目标 JD 的贴合度。</span>
+          </div>
+          <div className="feature-item">
+            <strong>关键词缺失分析</strong>
+            <span>找出岗位要求中的重点词并给出补强方向。</span>
+          </div>
+          <div className="feature-item">
+            <strong>完整简历重写</strong>
+            <span>生成更适合投递的文本版本，并支持导出 PDF。</span>
+          </div>
         </div>
       </section>
 
-      <section className="panel-grid">
-        <form className="card" onSubmit={handleSubmit}>
-          <h2>开始优化</h2>
-          <p className="section-caption">
-            第一版以可运行和可部署为主。未配置 AI API 时，会自动使用本地兜底分析，方便先验证流程。
-          </p>
+      <section id="workspace" className="workspace-grid">
+        <form className="card form-card" onSubmit={handleSubmit}>
+          <div className="section-eyebrow">Upload & Optimize</div>
+          <h2>上传简历并输入目标岗位</h2>
+          <p className="section-caption">准备一份文字可复制的 PDF 简历和完整 JD，即可生成针对性的优化结果。</p>
 
           <div className="field">
-            <label htmlFor="resume-upload">上传 PDF 简历</label>
+            <label htmlFor="resume-upload">PDF 简历</label>
             <input
+              key={fileInputKey}
               id="resume-upload"
               type="file"
               accept=".pdf,application/pdf"
@@ -235,7 +295,7 @@ export default function ResumeOptimizerApp() {
             <div className="field-help">
               {resumeFile
                 ? `已选择文件：${resumeFile.name} (${Math.max(1, Math.round(resumeFile.size / 1024))} KB)`
-                : "请上传文本型 PDF，扫描版 PDF 可能无法解析。"}
+                : "建议上传文字可复制的 PDF，便于系统准确解析内容。"}
             </div>
           </div>
 
@@ -247,66 +307,53 @@ export default function ResumeOptimizerApp() {
               value={jobDescription}
               onChange={(event) => setJobDescription(event.target.value)}
             />
-            <div className="field-help">
-              当前版本仅支持粘贴文本 JD，不支持图片和文件上传。
-            </div>
+            <div className="field-help">建议尽量保留职责、要求和加分项，分析会更准确。</div>
           </div>
 
           <div className="button-row">
             <button className="button button-primary" type="submit" disabled={!canSubmit}>
               {loading ? "分析中..." : "开始优化"}
             </button>
-            <button
-              className="button button-secondary"
-              type="button"
-              disabled={loading}
-              onClick={() => {
-                setResumeFile(null);
-                setJobDescription("");
-                setResult(null);
-                setMeta(null);
-                setError("");
-                setSuccess("");
-              }}
-            >
+            <button className="button button-secondary" type="button" disabled={loading} onClick={handleReset}>
               清空重置
             </button>
           </div>
         </form>
 
-        <aside className="card">
-          <h2>使用说明</h2>
-          <div className="stack">
-            <div className="list-card">
-              <h3>支持内容</h3>
-              <ul className="list">
-                <li>ATS 匹配评分</li>
-                <li>关键词缺失分析</li>
-                <li>结构诊断与改写建议</li>
-                <li>完整优化版简历</li>
-              </ul>
+        <aside className="card guidance-card">
+          <div className="section-eyebrow">What You Get</div>
+          <h2>输出内容一览</h2>
+          <div className="guidance-stack">
+            <div className="guidance-item">
+              <strong>智能诊断</strong>
+              <span>查看 ATS 分数、缺失关键词和结构问题，快速确认修改优先级。</span>
             </div>
-            <div className="list-card">
-              <h3>建议做法</h3>
-              <ul className="list">
-                <li>优先上传排版清晰、文字可复制的 PDF 简历。</li>
-                <li>JD 尽量完整，包含职责、要求和加分项。</li>
-                <li>AI 输出仅作为优化建议，投递前需要自行核对真实性。</li>
-              </ul>
+            <div className="guidance-item">
+              <strong>定向改写</strong>
+              <span>围绕项目经历、技能表达和量化成果，生成更贴近 JD 的重写建议。</span>
             </div>
-            <div className="notice notice-info">
-              API Key 只应放在服务端环境变量中，不能写进前端代码或仓库。
+            <div className="guidance-item">
+              <strong>直接交付</strong>
+              <span>得到一版完整优化后的简历文本，可复制、可继续编辑、可导出为 PDF。</span>
             </div>
+          </div>
+          <div className="detail-panel">
+            <h3>使用建议</h3>
+            <ul className="list">
+              <li>优先上传排版清晰、内容完整的 PDF 简历。</li>
+              <li>JD 越完整，生成结果越容易贴近目标岗位。</li>
+              <li>投递前请核对最终内容，确保所有表述都与真实经历一致。</li>
+            </ul>
           </div>
         </aside>
       </section>
 
       {(loading || error || success) && (
-        <section className="card" style={{ marginTop: 20 }}>
+        <section className="card status-card">
           {loading && (
             <div className="status-box">
               <div className="status-title">{loadingSteps[loadingIndex]}</div>
-              <div className="status-meta">请稍等，系统正在解析 PDF、分析 JD 并生成优化结果。</div>
+              <div className="status-meta">系统正在解析 PDF、分析 JD 并生成优化结果，请稍等片刻。</div>
             </div>
           )}
           {!loading && error && <div className="notice notice-error">{error}</div>}
@@ -314,38 +361,40 @@ export default function ResumeOptimizerApp() {
         </section>
       )}
 
-      <section id="result-section" className="card" style={{ marginTop: 20 }}>
-        <h2>分析结果</h2>
-        <p className="section-caption">
-          {result
-            ? "下面是本次生成的评分、问题诊断和优化版简历。"
-            : "提交简历和 JD 后，结果会展示在这里。"}
-        </p>
+      <section id="result-section" className="card results-shell">
+        <div className="results-header">
+          <div>
+            <div className="section-eyebrow">Results</div>
+            <h2>分析结果与优化版简历</h2>
+          </div>
+          <p className="section-caption">
+            {result ? "下面是本次生成的评分、诊断建议和优化后的完整简历。" : "提交简历和 JD 后，结果会展示在这里。"}
+          </p>
+        </div>
 
         {!result ? (
-          <div className="notice notice-info">
-            结果区为空。你可以先上传一份 PDF 简历并粘贴目标岗位 JD，再点击“开始优化”。
+          <div className="empty-state">
+            <div className="empty-state-title">等待你的简历与岗位描述</div>
+            <div className="empty-state-copy">上传一份 PDF 简历并粘贴目标岗位 JD 后，系统会在这里展示完整分析结果。</div>
           </div>
         ) : (
-          <div className="stack">
+          <div className="results-stack">
             <div className="stats-grid">
-              <div className="stat-card">
+              <div className="stat-card stat-card-primary">
                 <div className="stat-label">ATS 匹配评分</div>
                 <div className="stat-score">{result.atsScore}</div>
                 <div className="footer-note">{result.scoreReason}</div>
               </div>
               <div className="stat-card">
-                <div className="stat-label">本次生成模式</div>
-                <div style={{ fontSize: 24, fontWeight: 800 }}>
-                  {meta?.mode === "ai" ? "AI 模式" : "本地兜底模式"}
-                </div>
+                <div className="stat-label">优先优化方向</div>
+                <div className="stat-headline">{result.issues?.[0] || "补充更清晰的项目成果表达。"}</div>
                 <div className="footer-note">
-                  {meta?.message || "未配置 AI API 时，系统会自动使用本地规则生成演示结果。"}
+                  缺失关键词 {(result.missingKeywords || []).length} 个，建议优先围绕最相关经历进行补强。
                 </div>
               </div>
             </div>
 
-            <div className="list-card">
+            <div className="list-card keyword-card">
               <h3>缺失关键词</h3>
               <div className="pill-list">
                 {(result.missingKeywords || []).length > 0 ? (
@@ -355,12 +404,12 @@ export default function ResumeOptimizerApp() {
                     </span>
                   ))
                 ) : (
-                  <span className="pill">未识别出明显缺失项</span>
+                  <span className="pill">当前未识别出明显缺失项</span>
                 )}
               </div>
             </div>
 
-            <div className="panel-grid" style={{ marginTop: 0 }}>
+            <div className="results-columns">
               <div className="stack">
                 <div className="list-card">
                   <h3>优势总结</h3>
@@ -404,17 +453,16 @@ export default function ResumeOptimizerApp() {
 
                 <div className="list-card">
                   <h3>项目经历优化示例</h3>
-                  <ul className="list">
+                  <div className="example-stack">
                     {(result.projectRewriteExamples || []).map((item, index) => (
-                      <li key={`${item.before}-${index}`}>
-                        <strong>原始：</strong>
-                        {item.before}
-                        <br />
-                        <strong>建议：</strong>
-                        {item.after}
-                      </li>
+                      <div key={`${item.before}-${index}`} className="example-card">
+                        <div className="example-label">原始表达</div>
+                        <p>{item.before}</p>
+                        <div className="example-label">优化建议</div>
+                        <p>{item.after}</p>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
 
                 <div className="list-card">
@@ -428,18 +476,22 @@ export default function ResumeOptimizerApp() {
               </div>
             </div>
 
-            <div className="list-card">
-              <h3>优化版完整简历</h3>
-              <div className="resume-box">{result.optimizedResume}</div>
-              <div className="button-row" style={{ marginTop: 16 }}>
-                <button className="button button-primary" type="button" onClick={handleCopyResume}>
-                  复制优化版简历
-                </button>
-                <button className="button button-secondary" type="button" onClick={handleExportPdf}>
-                  导出 PDF
-                </button>
+            <div className="list-card resume-card">
+              <div className="resume-header">
+                <div>
+                  <h3>优化版完整简历</h3>
+                  <div className="footer-note">你可以直接复制文本继续润色，或导出 PDF 用于后续排版。</div>
+                </div>
+                <div className="button-row">
+                  <button className="button button-primary" type="button" onClick={handleCopyResume}>
+                    复制优化版简历
+                  </button>
+                  <button className="button button-secondary" type="button" onClick={handleExportPdf}>
+                    导出 PDF
+                  </button>
+                </div>
               </div>
-              <div className="footer-note">导出 PDF 会调用浏览器打印窗口，你可以选择“另存为 PDF”。</div>
+              <div className="resume-box">{result.optimizedResume}</div>
             </div>
           </div>
         )}
